@@ -23,9 +23,9 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    getdata();
-    update(id);
+    getdata(id);
     datadelet(id);
+    update(id);
 
     obj.datacreated(
         itemController.text,
@@ -37,9 +37,9 @@ class _HomepageState extends State<Homepage> {
 
   List data = [];
   String? id;
-  Future getdata() async {
+  Future getdata(id) async {
     final responce =
-        await http.get(Uri.parse('http://127.0.0.1:8000/api/computer-items'));
+        await http.get(Uri.parse('http://192.168.43.66:8000/api/computer'));
     if (responce.statusCode == 200) {
       setState(() {
         data = jsonDecode(responce.body);
@@ -51,20 +51,20 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future datadelet(id) async {
-    final responce = await http.delete(
-        Uri.parse('http://127.0.0.1:8000/api/computer-items/delete/$id'));
+    final responce = await http
+        .delete(Uri.parse('http://192.168.43.66:8000/api/computer/delete/$id'));
     print(responce.statusCode);
 
     if (responce.statusCode == 200) {
       print('DELETE COMPLETE');
     } else {
-      print('nOT dELET');
+      print('NOT dELETED');
     }
   }
 
   Future update(id) async {
     final responce = await http
-        .put(Uri.parse('http://127.0.0.1:8000/api/computer-items/edit/'),
+        .put(Uri.parse('http://192.168.43.66:8000/api/computer/edit/$id'),
             body: jsonEncode({
               "item": itemController.text,
               "manufacturer": manufacturerController.text,
@@ -77,8 +77,9 @@ class _HomepageState extends State<Homepage> {
           'Accept': 'application/json',
         });
     print(responce.statusCode);
-    if (responce.statusCode == 200) {
+    if (responce.statusCode == 201) {
       print('Data Update Successfully');
+
       itemController.clear();
       manufacturerController.clear();
       descriptionController.clear();
@@ -98,37 +99,47 @@ class _HomepageState extends State<Homepage> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(50),
           child: Container(
             child: Column(
               children: [
                 TextField(
                   controller: itemController,
                   decoration: InputDecoration(
+                    border: new OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.teal)),
                     hintText: 'Item',
                   ),
                 ),
                 TextField(
                   controller: manufacturerController,
                   decoration: InputDecoration(
+                    border: new OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.teal)),
                     hintText: 'Manufacturer',
                   ),
                 ),
                 TextField(
                   controller: descriptionController,
                   decoration: InputDecoration(
+                    border: new OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.teal)),
                     hintText: 'Description',
                   ),
                 ),
                 TextField(
                   controller: priceController,
                   decoration: InputDecoration(
+                    border: new OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.teal)),
                     hintText: 'Price',
                   ),
                 ),
                 TextField(
                   controller: quantityController,
                   decoration: InputDecoration(
+                    border: new OutlineInputBorder(
+                        borderSide: new BorderSide(color: Colors.teal)),
                     hintText: 'Quantity',
                   ),
                 ),
@@ -145,9 +156,10 @@ class _HomepageState extends State<Homepage> {
                               priceController.text,
                               quantityController.text,
                             );
+                            print('Create is Pressed');
                           });
                         },
-                        child: Text('Submit')),
+                        child: Text('Create')),
                   ],
                 ),
                 Expanded(
@@ -155,74 +167,55 @@ class _HomepageState extends State<Homepage> {
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         return Container(
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(data[index]['item']),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(data[index]['manufacturer']),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(data[index]['description']),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(data[index]['price']),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(data[index]['quantity']),
-                                  ],
-                                ),
-                                Container(
-                                  width: 150,
-                                  child: Row(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () {
-                                            itemController.text =
-                                                data[index]['item'];
-
-                                            manufacturerController.text =
-                                                data[index]['manufacturer'];
-
-                                            descriptionController.text =
-                                                data[index]['description'];
-
-                                            priceController.text =
-                                                data[index]['price'];
-
-                                            quantityController.text =
-                                                data[index]['quantity'];
-                                          },
-                                          icon: Icon(Icons.edit)),
-                                      IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              datadelet(data[index]['id']);
-                                            });
-                                          },
-                                          icon: Icon(Icons.delete)),
-                                      IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              update(data[index]['id']);
-                                            });
-                                          },
-                                          icon: Icon(Icons.book)),
-                                    ],
-                                  ),
-                                ),
-                              ]),
+                          child: ListTile(
+                            title: Text(data[index]['item']),
+                            subtitle: Text(data[index]['manufacturer']),
+                            trailing: Container(
+                              width: 150,
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        itemController.text =
+                                            data[index]['item'];
+                                        manufacturerController.text =
+                                            data[index]['manufacturer'];
+                                        descriptionController.text =
+                                            data[index]['description'];
+                                        priceController.text =
+                                            data[index]['price'];
+                                        quantityController.text =
+                                            data[index]['quantity'];
+                                      },
+                                      color: Colors.greenAccent,
+                                      highlightColor: Colors.greenAccent,
+                                      iconSize: 25,
+                                      icon: Icon(Icons.edit)),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          datadelet(data[index]['id']);
+                                        });
+                                      },
+                                      color: Colors.blueAccent,
+                                      highlightColor:
+                                          Color.fromARGB(255, 68, 81, 255),
+                                      iconSize: 25,
+                                      icon: Icon(Icons.delete)),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          update(data[index]['id']);
+                                        });
+                                      },
+                                      color: Colors.redAccent,
+                                      highlightColor: Colors.redAccent,
+                                      iconSize: 25,
+                                      icon: Icon(Icons.update)),
+                                ],
+                              ),
+                            ),
+                          ),
                         );
                       }),
                 )
